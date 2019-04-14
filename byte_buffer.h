@@ -30,5 +30,9 @@ class ByteBuffer {
 	uint32_t readUint32();
 	uint64_t readUint64();
 	void readBoxHeader(OUT BoxHeader &headerObj);
-	void readBoxHeader(OUT FullBoxHeader &headerObj);
+	void readFullBoxHeader(OUT FullBoxHeader &headerObj);
+	void readPartialFullBoxHeader(OUT FullBoxHeader &headerObj);
+	size_t size() const { 
+		return fileSize; 
+	}
 };

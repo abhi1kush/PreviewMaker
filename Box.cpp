@@ -9,7 +9,7 @@ BoxHeader::BoxHeader() {
 	this->name[3] = 'l';
 }
 
-BoxHeader::BoxHeader(uitn32_t size, byte *name) {
+BoxHeader::BoxHeader(uint32_t size, byte *name) {
 	this->size = size;
 	this->name[0] = name[0];
 	this->name[1] = name[1];
@@ -18,7 +18,19 @@ BoxHeader::BoxHeader(uitn32_t size, byte *name) {
 }
 
 void BoxHeader::printHeader() {
-	std::cout<<size<<" "<<name;
+	printSpace();
+	fwrite((char *)name, sizeof(byte), 4, stdout);	
+	printf(" %u\n", size);
+}
+
+void BoxHeader::setBoxHeader(uint32_t size, byte *name, size_t offset)
+{
+	this->offset = offset;
+	this->size = size;
+	this->name[0] = name[0];
+	this->name[1] = name[1];
+	this->name[2] = name[2];
+	this->name[3] = name[3];
 }
 
 BoxHeader::~BoxHeader() {
@@ -26,53 +38,74 @@ BoxHeader::~BoxHeader() {
 }
 
 FullBoxHeader::FullBoxHeader() {
-	this->version = 0;
+	this->version[0] = 0;
 	this->boxFlags[0] = 0;
 	this->boxFlags[1] = 0;
 	this->boxFlags[2] = 0;
 }
 
-FullBoxHeader::FullBoxHeader(uint8_t &version, uint8_t *boxFlags) {
-	this->version = version;
+FullBoxHeader::FullBoxHeader(byte *version, byte *boxFlags) {
+	this->version[0] = version[0];
 	this->boxFlags[0] = boxFlags[0];
 	this->boxFlags[1] = boxFlags[1];
 	this->boxFlags[2] = boxFlags[2];
 }
 
-int isContainer(std::string &name) {
-	auto it = boxMap.find(name);
+void FullBoxHeader::setFullBoxHeader(byte *version, byte *boxFlags) {
+	this->version[0] = version[0];
+	this->boxFlags[0] = boxFlags[0];
+	this->boxFlags[1] = boxFlags[1];
+	this->boxFlags[2] = boxFlags[2];
+}
+
+static inline std::string convertBoxNameToString(byte *name)
+{
+	char tmpName[5];
+	tmpName[0] = name[0];
+	tmpName[1] = name[1];
+	tmpName[2] = name[2];
+	tmpName[3] = name[3];
+	tmpName[4] = '\0';
+	std::string nameStr(tmpName);
+	return nameStr;
+}
+
+int BoxHeader::isContainer() {
+	auto it = boxMap.find(convertBoxNameToString(name));
 	if (it != boxMap.end()) {
 		return it->second.isContainer() ? 1 : 0;
 	}
 	return -1;
 }
 
-int isContainer(unsigned char *nameCharArr) {
-	unsigned char tempArr[5];
-	tempArr[0] = nameCharArr[0];
-	tempArr[1] = nameCharArr[1];
-	tempArr[2] = nameCharArr[2];
-	tempArr[3] = nameCharArr[3];
-	tempArr[4] = '\0';
-	std::string name((char *)tempArr);
-	auto it = boxMap.find(name);
-	if (it != boxMap.end()) {
-		return it->second.isContainer() ? 1 : 0;
-	}
-	return -1;
-}
-
-int isFullBox(std::string &name) {
-	auto it = boxMap.find(name);
+int BoxHeader::isFullBox() {
+	auto it = boxMap.find(convertBoxNameToString(name));
 	if (it != boxMap.end()) {
 		return (it->second.isFullBox()) ? 1 : 0;
 	}
 	return -1;
 }
 
-int isValidBox(std::string &name) {
-	if (boxMap.find(name) != boxMap.end()) {
+int BoxHeader::isValidBox() {
+	std::string nameStr = convertBoxNameToString(name);
+	if (boxMap.find(nameStr) != boxMap.end()) {
 		return 1;
 	}
 	return -1;
+}
+
+uint8_t BoxHeader::spaceCount = 0;
+
+void BoxHeader::printSpace() {
+	for (int i = 0; i < spaceCount; i++) {
+		printf("----|");
+	}
+}
+
+void BoxHeader::addSpace() {
+	spaceCount++;
+}
+
+void BoxHeader::delSpace() {
+	spaceCount--;
 }

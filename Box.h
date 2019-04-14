@@ -108,27 +108,42 @@ static const std::unordered_map<std::string, BoxInfo> boxMap = {
 
 class BoxHeader {
 	uint32_t size;
-	unsigned char name[4];
-	
+	byte name[4];
+        static uint8_t spaceCount;
+	size_t offset;
 	public:
 	BoxHeader();
 	BoxHeader(uint32_t size, byte *name);
 
 	//methods
-	void setBoxHeader(uint32_t size, byte *name);
+	void setBoxHeader(uint32_t size, byte *name, size_t offset);
 	void printHeader();
+	int isContainer();
+	int isFullBox();
+	int isValidBox();
+	uint32_t getSize() const {
+		return size;
+	}
+	size_t getOffset() {
+		return offset;
+	}
+
+	static void printSpace();
+	static void addSpace();
+	static void delSpace();
+
 	virtual ~BoxHeader();
 };
 
 class FullBoxHeader : public BoxHeader{
-	uint8_t version;
-	uint8_t boxFlags[3];
+	byte version[1];
+	byte boxFlags[3];
 
 	public:
 	FullBoxHeader();
-	FullBoxHeader(uint8_t &version, uint8_t *boxFlags);
+	FullBoxHeader(byte *version, byte *boxFlags);
 
-	void setFullBoxHeader(uint8_t &version, uint8_t *boxFlags);
+	void setFullBoxHeader(byte *version, byte *boxFlags);
 	void printFull();
 };
 

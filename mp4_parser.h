@@ -10,4 +10,5 @@ class Mp4Parser {
 	}
 
 	void parseMp4();
+	void parseContainerBox(BoxHeader &headerObjArg);
 };

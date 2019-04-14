@@ -157,8 +157,28 @@ uint64_t ByteBuffer::readUint64()
 void ByteBuffer::readBoxHeader(BoxHeader &headerObj)
 {
 	uint32_t size;
+	size_t offset = currPos;
 	byte name[4];
 	size = readUint32();
 	read(name, 4);
-	headerObj.setBoxHeader(size, size);
+	headerObj.setBoxHeader(size, name, offset);
+}
+
+void ByteBuffer::readFullBoxHeader(FullBoxHeader &fullHeaderObj)
+{
+	byte version[1];
+	byte flags[3];
+	ByteBuffer::readBoxHeader(fullHeaderObj);
+	read(version, 1);
+	read(flags, 3);
+	fullHeaderObj.setFullBoxHeader(version, flags);
+}
+
+void ByteBuffer::readPartialFullBoxHeader(FullBoxHeader &fullHeaderObj)
+{
+	byte version[1];
+	byte flags[3];
+	read(version, 1);
+	read(flags, 3);
+	fullHeaderObj.setFullBoxHeader(version, flags);
 }
