@@ -1,15 +1,9 @@
-/*
- * Box.h
- *
- *  Created on: 13-Apr-2019
- *      Author: Abhishek
- */
-
 #ifndef BOX_H_
 #define BOX_H_
 
 #include <string>
 #include <unordered_map>
+#include "common.h"
 
 #define SIMPLE_BOX 0
 #define CONTAINER_BOX 0x1
@@ -112,17 +106,16 @@ static const std::unordered_map<std::string, BoxInfo> boxMap = {
 	//srpp fullbox
 };
 
-
-
 class BoxHeader {
-	unsigned char name[4];
 	uint32_t size;
+	unsigned char name[4];
 	
 	public:
 	BoxHeader();
-	BoxHeader(uint8_t *name, uint8_t &flag);
+	BoxHeader(uint32_t size, byte *name);
 
 	//methods
+	void setBoxHeader(uint32_t size, byte *name);
 	void printHeader();
 	virtual ~BoxHeader();
 };
@@ -135,6 +128,7 @@ class FullBoxHeader : public BoxHeader{
 	FullBoxHeader();
 	FullBoxHeader(uint8_t &version, uint8_t *boxFlags);
 
+	void setFullBoxHeader(uint8_t &version, uint8_t *boxFlags);
 	void printFull();
 };
 

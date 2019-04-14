@@ -4,10 +4,9 @@
 
 void Mp4Parser::parseMp4()
 {
-	byte size[4];
-	uint32_t size2 = 0;
+	uint32_t size;
 	byte name[4];
-	fileBuffer.read((byte *)&size2, 4);
-	fileBuffer.read(name, 4);
-	printf("WIP %u %s\n", size2, name);
+	size = fileByteBuffer.readUint32();
+	fileByteBuffer.read(name, 4);
+	printf("WIP %u %s\n", size, name);
 }

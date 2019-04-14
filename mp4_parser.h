@@ -2,10 +2,10 @@
 #include "byte_buffer.h"
 
 class Mp4Parser {
-	ByteBuffer fileBuffer;
+	ByteBuffer fileByteBuffer;
 
 	public:
-	Mp4Parser(ByteBuffer &fileBufferArg) : fileBuffer(fileBufferArg)
+	Mp4Parser(ByteBuffer &fileBufferArg) : fileByteBuffer(fileBufferArg)
 	{
 	}
 

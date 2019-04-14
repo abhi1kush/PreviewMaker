@@ -5,10 +5,82 @@
 #define READ_LIMIT 500
 
 /************************ ByteOrder **********************/
-ByteOrder::isBigEndian() 
+//This could be replaced by macro.
+bool ByteOrder::isBigEndianHost() 
 {
-
+	endian32 endianDetect;
+	endianDetect.num = 1;
+	return (1 == endianDetect.bytes[3]) ? true : false;
 }
+
+/*Input ByteArray is in BigEndian*/
+uint32_t ByteOrder::byteToHostOrderUint32(byte *byteArr)
+{
+	endian32 tmpUnion;
+	if (ByteOrder::isBigEndianHost()) {
+		tmpUnion.bytes[0] = byteArr[0];
+		tmpUnion.bytes[1] = byteArr[1];
+		tmpUnion.bytes[2] = byteArr[2];
+		tmpUnion.bytes[3] = byteArr[3];
+		return tmpUnion.num;
+	} else {
+		tmpUnion.bytes[0] = byteArr[3];
+		tmpUnion.bytes[1] = byteArr[2];
+		tmpUnion.bytes[2] = byteArr[1];
+		tmpUnion.bytes[3] = byteArr[0];
+		return tmpUnion.num;
+	}
+}
+
+uint64_t ByteOrder::byteToHostOrderUint64(byte *byteArr)
+{
+	endian64 tmpUnion;
+	if (ByteOrder::isBigEndianHost()) {
+		for (int i = 0; i < 8; i++) {
+			tmpUnion.bytes[i] = byteArr[i];
+		}
+		return tmpUnion.num;
+	} else {
+		for (int i = 0; i < 8; i++) {
+			tmpUnion.bytes[i] = byteArr[7 - i];
+		}
+		return tmpUnion.num;
+	}
+}
+
+void ByteOrder::uint32ToNwByteArr(uint32_t num, byte *byteArr)
+{
+	endian32 tmpUnion;
+	tmpUnion.num = num;
+	if (ByteOrder::isBigEndianHost()) {
+		byteArr[0] = tmpUnion.bytes[0];
+		byteArr[1] = tmpUnion.bytes[1];
+		byteArr[2] = tmpUnion.bytes[2];
+		byteArr[3] = tmpUnion.bytes[3];
+	} else {
+		byteArr[0] = tmpUnion.bytes[3];
+		byteArr[1] = tmpUnion.bytes[2];
+		byteArr[2] = tmpUnion.bytes[1];
+		byteArr[3] = tmpUnion.bytes[0];
+	}
+}
+
+void ByteOrder::uint64ToNwByteArr(uint64_t num, byte *byteArr)
+{
+	endian64 tmpUnion;
+	tmpUnion.num = num;
+	if (ByteOrder::isBigEndianHost()) {
+		for (int i = 0; i < 8; i++) {
+			byteArr[i] = tmpUnion.bytes[i];
+		}
+	} else {
+		for (int i = 0; i < 8; i++) {
+			byteArr[i] = tmpUnion.bytes[7 - i];
+		}
+	}
+}
+
+
 /************************ ByteOrder END ******************/
 
 
@@ -68,18 +140,25 @@ size_t ByteBuffer::read_s(byte *buf, size_t maxBufSize, size_t byteCount)
 	read(buf, byteCount);
 }
 
-size_t ByteBuffer::readUint32(OUT uint32_t &num)
+uint32_t ByteBuffer::readUint32()
 {
 	byte tmpBuf[4];
-	num = 0;
-	fileBuffer.read(tmpBuf, 4);
-	num = ByteOrder.byteToHostOrderUint32(tmpBuf);
+	ByteBuffer::read(tmpBuf, 4);
+	return ByteOrder::byteToHostOrderUint32(tmpBuf);
 }
 
-size_t ByteBuffer::readUint64(OUT uint32_t &num)
+uint64_t ByteBuffer::readUint64()
 {
 	byte tmpBuf[8];
-	num = 0;
-	fileBuffer.read(tmpBuf, 8);
-	num = ByteOrder.byteToHostOrderUint64(tmpBuf);
+	ByteBuffer::read(tmpBuf, 8);
+	return ByteOrder::byteToHostOrderUint64(tmpBuf);
+}
+
+void ByteBuffer::readBoxHeader(BoxHeader &headerObj)
+{
+	uint32_t size;
+	byte name[4];
+	size = readUint32();
+	read(name, 4);
+	headerObj.setBoxHeader(size, size);
 }

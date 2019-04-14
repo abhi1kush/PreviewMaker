@@ -1,10 +1,3 @@
-/*
- * Box.cpp
- *
- *  Created on: 13-Apr-2019
- *      Author: Abhishek
- */
-
 #include <cstring>
 #include <iostream>
 #include "Box.h"
@@ -16,7 +9,8 @@ BoxHeader::BoxHeader() {
 	this->name[3] = 'l';
 }
 
-BoxHeader::BoxHeader(unsigned char *name, uint8_t &flag) {
+BoxHeader::BoxHeader(uitn32_t size, byte *name) {
+	this->size = size;
 	this->name[0] = name[0];
 	this->name[1] = name[1];
 	this->name[2] = name[2];
@@ -24,7 +18,7 @@ BoxHeader::BoxHeader(unsigned char *name, uint8_t &flag) {
 }
 
 void BoxHeader::printHeader() {
-	std::cout<<this->name;
+	std::cout<<size<<" "<<name;
 }
 
 BoxHeader::~BoxHeader() {
