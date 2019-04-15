@@ -52,3 +52,15 @@ int main(int argc, char *argv[])
 
 	return 0;
 }
+
+/*START
+ * 1. parse Mp4
+ * 2. process Meta Data
+ * 3. use meta data to extract IFrames and save in new File.
+ * 4. make OutPut mp4 file.
+ * a) generate stbl and write in output file, use dummy info in absence of info later update it.
+ * b) generate mdat and write in output file.
+ * c) update boxes where dummy info was used. 
+ * Final Output.
+ * END
+ * */
