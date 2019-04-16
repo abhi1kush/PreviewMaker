@@ -4,27 +4,83 @@
 
 //contains Total IFrame count. Stores serial number of IFrames.
 class STSS {
+	uint32_t offset;
+	FullBoxHeader fullHeader;
+	uint32_t entryCount;
+	vector<uint32_t> iFrameSequenceVec;
+	public:
+	err_t populateStss(uint8_t offset);
 };
 
+typedef struct _StscEntry
+{
+	uint32_t firstChunk;
+	uint32_t samplesPerChunk;
+	uint32_t sampleDescriptionIndex;
+}StscEntry_T;
 //Contains Table of Run of Chunks. entry(first_chunk, frame_per_chunk, description_Box)
 class STSC {
+	uint32_t offset;
+	FullBoxHeader fullHeader;
+	uint32_t totalFrameCount;
+	uint32_t entryCount;
+	vector<StscEntrty_T> runOfChunksVec;
+	public:
+	STSC(uint32_t totalFrameCount);
+	err_t populateStsc();
 };
 
 //stco box contains absolute offset of chunks.
 class STCO {
+	uint32_t offset;
+	FullBoxHeader fullHeader;
+	uint32_t entryCount;
+	vector<uint32_t> frameAbsOffsetVec;
+	public:
+	err_t populateStco();
 };
 
 //Its better to use it directly from file for Large Size videos.
 class STSZ {
+	uint32_t offset;
 };
 
 class CO64 {
+	uint32_t offset;
+	FullBoxHeader fullHeader;
+	uint32_t entryCount;
+	vector<uint64_t> frameAbsOffsetVec;
+	public:
+	err_t populateCo64();
 };
 
 class STBL {
+	uint32_t offset;
+	BoxHeader header;
+	STSS stssObj;
+	STSC stscObj;
+	STSZ stszObj;
+	union annon { 
+		STCO stcoObj;
+		CO64 co64Obj;
+	};
+	public:
+	err_t populateStbl();
 };
 
+typedef struct _SttsEntry
+{
+	uint32_t sampleCount;
+	uint32_t sampleDelta;
+}SttsEntry_T;
+
 class STTS {
+	FullBoxHeader fullHeader;
+	uint32_t entryCount;
+	vector<SttsEntry> deltaVec;
+	uint32_t totalFrameCount; //calculate and store.
+	public:
+	populateStts();
 };
 
 class StblHandler {
