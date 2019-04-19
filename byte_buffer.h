@@ -17,7 +17,11 @@ class ByteBuffer {
 	size_t currPos;
 
 	public:
-	ByteBuffer(void *fptrArg, size_t fileSizeArg) : fptr((byte *)fptrArg), base((byte *)fptrArg), fileSize(fileSizeArg)
+	ByteBuffer(void *fptrArg, size_t fileSizeArg) : base((byte *)fptrArg), fptr((byte *)fptrArg), fileSize(fileSizeArg), currPos(0)
+	{
+	}
+	
+	ByteBuffer(void *fptrArg, size_t fileSizeArg, size_t currPosArg) : base((byte *)fptrArg), fptr((byte *)fptrArg), fileSize(fileSizeArg), currPos(currPosArg)
 	{
 	}
 

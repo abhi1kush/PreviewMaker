@@ -1,15 +1,16 @@
 #include "common.h"
 #include "byte_buffer.h"
-#include "mp4-err.h"
+#include "mp4_err.h"
+#include <vector>
 
 //contains Total IFrame count. Stores serial number of IFrames.
 class STSS {
 	uint32_t offset;
 	FullBoxHeader fullHeader;
 	uint32_t entryCount;
-	vector<uint32_t> iFrameSequenceVec;
+	std::vector<uint32_t> iFrameSequenceVec;
 	public:
-	err_t populateStss(uint8_t offset);
+	err_t populateStss(ByteBuffer &stblBuffer, uint8_t offset);
 };
 
 typedef struct _StscEntry
@@ -24,10 +25,11 @@ class STSC {
 	FullBoxHeader fullHeader;
 	uint32_t totalFrameCount;
 	uint32_t entryCount;
-	vector<StscEntrty_T> runOfChunksVec;
+	std::vector<StscEntry_T> runOfChunksVec;
 	public:
+	STSC();
 	STSC(uint32_t totalFrameCount);
-	err_t populateStsc();
+	err_t populateStsc(ByteBuffer &stblBuffer, uint8_t offset);
 };
 
 //stco box contains absolute offset of chunks.
@@ -35,9 +37,9 @@ class STCO {
 	uint32_t offset;
 	FullBoxHeader fullHeader;
 	uint32_t entryCount;
-	vector<uint32_t> frameAbsOffsetVec;
+	std::vector<uint32_t> frameAbsOffsetVec;
 	public:
-	err_t populateStco();
+	err_t populateStco(ByteBuffer &stblBuffer, uint8_t offset);
 };
 
 //Its better to use it directly from file for Large Size videos.
@@ -49,12 +51,13 @@ class CO64 {
 	uint32_t offset;
 	FullBoxHeader fullHeader;
 	uint32_t entryCount;
-	vector<uint64_t> frameAbsOffsetVec;
+	std::vector<uint64_t> frameAbsOffsetVec;
 	public:
-	err_t populateCo64();
+	err_t populateCo64(ByteBuffer &stblBuffer, uint8_t offset);
 };
 
 class STBL {
+	ByteBuffer stblBuffer;
 	uint32_t offset;
 	BoxHeader header;
 	STSS stssObj;
@@ -65,6 +68,8 @@ class STBL {
 		CO64 co64Obj;
 	};
 	public:
+	STBL(void *fptrArg, size_t fileSizeArg, size_t stblOffset) : stblBuffer(fptrArg,fileSizeArg, stblOffset), offset(stblOffset) 
+	{}
 	err_t populateStbl();
 };
 
@@ -77,10 +82,10 @@ typedef struct _SttsEntry
 class STTS {
 	FullBoxHeader fullHeader;
 	uint32_t entryCount;
-	vector<SttsEntry> deltaVec;
+	std::vector<SttsEntry_T> deltaVec;
 	uint32_t totalFrameCount; //calculate and store.
 	public:
-	populateStts();
+	void populateStts();
 };
 
 class StblHandler {

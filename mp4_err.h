@@ -9,7 +9,7 @@
 #define MP4_ERROR_ENUM(ID, NAME, ERROR_MSG) NAME = ID,
 #define MP4_ERROR_MSG(ID, NAME, ERROR_MSG) case ID: return ERROR_MSG;
 
-typedef int ERR_T;
+typedef int err_t;
 
 enum {
 	MP4_ERROR_CODES(MP4_ERROR_ENUM)
