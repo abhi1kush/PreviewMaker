@@ -3,6 +3,8 @@
 #include "mp4_err.h"
 #include <vector>
 
+#define INVALID_OFFSET 1
+
 //contains Total IFrame count. Stores serial number of IFrames.
 class STSS {
 	uint32_t offset;
@@ -11,6 +13,7 @@ class STSS {
 	std::vector<uint32_t> iFrameSequenceVec;
 	public:
 	err_t populateStss(ByteBuffer &stblBuffer, uint8_t offset);
+	virtual void print();
 };
 
 typedef struct _StscEntry
@@ -30,6 +33,7 @@ class STSC {
 	STSC();
 	STSC(uint32_t totalFrameCount);
 	err_t populateStsc(ByteBuffer &stblBuffer, uint8_t offset);
+	virtual void print();
 };
 
 //stco box contains absolute offset of chunks.
@@ -40,6 +44,7 @@ class STCO {
 	std::vector<uint32_t> frameAbsOffsetVec;
 	public:
 	err_t populateStco(ByteBuffer &stblBuffer, uint8_t offset);
+	virtual void print();
 };
 
 //Its better to use it directly from file for Large Size videos.
@@ -54,23 +59,34 @@ class CO64 {
 	std::vector<uint64_t> frameAbsOffsetVec;
 	public:
 	err_t populateCo64(ByteBuffer &stblBuffer, uint8_t offset);
+	virtual void print();
 };
 
 class STBL {
 	ByteBuffer stblBuffer;
+	size_t size;
 	uint32_t offset;
 	BoxHeader header;
 	STSS stssObj;
 	STSC stscObj;
 	STSZ stszObj;
-	union annon { 
-		STCO stcoObj;
-		CO64 co64Obj;
-	};
+	STCO stcoObj;
+	//CO64 co64Obj;
+	uint32_t stssOffset;
+	uint32_t stscOffset;
+	uint32_t stcoOffset;
+	//uint32_t co64Offset;
 	public:
 	STBL(void *fptrArg, size_t fileSizeArg, size_t stblOffset) : stblBuffer(fptrArg,fileSizeArg, stblOffset), offset(stblOffset) 
-	{}
+	{
+		stssOffset = INVALID_OFFSET;
+		stscOffset = INVALID_OFFSET;
+		stcoOffset = INVALID_OFFSET;
+	}
+	err_t populateSubBoxOffset();
 	err_t populateStbl();
+	err_t parseStbl();
+	virtual void print();
 };
 
 typedef struct _SttsEntry
@@ -86,6 +102,7 @@ class STTS {
 	uint32_t totalFrameCount; //calculate and store.
 	public:
 	void populateStts();
+	virtual void print();
 };
 
 class StblHandler {
@@ -97,7 +114,7 @@ class StblHandler {
 	err_t stssHandler(); //OUT IFrame seq number array, stssObj.
 	err_t sttsHandler(); //OUT delta array.
 	err_t populateStbl(OUT STBL &stblObj);
-		
+	virtual void print();
 };
 
 class IFrame {
@@ -116,6 +133,7 @@ class IFrame {
 	 * }
 	 *
 	 * */
+	virtual void print();
 };
 
 

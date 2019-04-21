@@ -118,6 +118,7 @@ class BoxHeader {
 	//methods
 	void setBoxHeader(uint32_t size, byte *name, size_t offset);
 	void printHeader();
+	virtual void print();
 	int isContainer();
 	int isFullBox();
 	int isValidBox();
@@ -145,6 +146,7 @@ class FullBoxHeader : public BoxHeader{
 
 	void setFullBoxHeader(byte *version, byte *boxFlags);
 	void printFull();
+	//virtual void print();
 };
 
 #endif /* BOX_H_ */

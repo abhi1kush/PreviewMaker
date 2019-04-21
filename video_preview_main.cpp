@@ -17,6 +17,7 @@
 #include "Box.h"
 #include "mp4_err.h"
 #include "mp4_parser.h"
+#include "log.h"
 
 typedef	char	*caddr_t;
 
@@ -30,6 +31,7 @@ int main(int argc, char *argv[])
 	uint8_t *fptr = NULL;
 	struct stat sbuf;
 
+ 	VID_LOG(0, VID_ERROR, "Test %d %u.", 1, 100);	
 
 	MP4_ASSERT(2 == argc, "Usage: <filename>\n", return -1);
 	fd = open(argv[1], O_RDONLY);

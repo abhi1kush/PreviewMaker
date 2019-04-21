@@ -23,6 +23,10 @@ void BoxHeader::printHeader() {
 	printf(" %u\n", size);
 }
 
+void BoxHeader::print() {
+	printHeader();
+}
+
 void BoxHeader::setBoxHeader(uint32_t size, byte *name, size_t offset)
 {
 	this->offset = offset;
