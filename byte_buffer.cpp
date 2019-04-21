@@ -1,6 +1,7 @@
 #include "byte_buffer.h"
 #include <iostream>
 #include <cstring>
+#include <string>
 
 #define READ_LIMIT 500
 
@@ -182,3 +183,18 @@ void ByteBuffer::readPartialFullBoxHeader(FullBoxHeader &fullHeaderObj)
 	read(flags, 3);
 	fullHeaderObj.setFullBoxHeader(version, flags);
 }
+
+bool ByteBuffer::verifyBoxType(std::string boxName)
+{
+	BoxHeader headerObj = BoxHeader();
+	size_t backupPosition = getPosition();
+	readBoxHeader(headerObj);
+	setPosition(backupPosition);
+	if (headerObj.getName() == boxName) {
+		return true;
+	} 
+	return false;
+}
+
+
+

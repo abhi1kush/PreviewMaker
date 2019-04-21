@@ -122,6 +122,7 @@ class BoxHeader {
 	int isContainer();
 	int isFullBox();
 	int isValidBox();
+	std::string getName();
 	uint32_t getSize() const {
 		return size;
 	}

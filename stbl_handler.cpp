@@ -1,5 +1,6 @@
 #include "stbl_handler.h"
 #include "log.h"
+#include "mp4_err.h"
 
 #define MODULE_NAME "stbl"
 
@@ -106,6 +107,7 @@ err_t STBL::populateSubBoxOffset()
 err_t STBL::populateStbl()
 {
 	err_t ret;
+	MP4_ASSERT(stblBuffer.verifyBoxType("stbl"), "stbl verifyBoxType failed", return MP4_PARSE_FAILED);
 	ret = populateSubBoxOffset();
 	if ((stssOffset == INVALID_OFFSET) 
 		|| (stscOffset == INVALID_OFFSET) 

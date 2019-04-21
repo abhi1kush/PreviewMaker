@@ -1,5 +1,6 @@
 #include "common.h"
 #include "Box.h"
+#include <string>
 
 class ByteOrder {
 	public:
@@ -36,6 +37,7 @@ class ByteBuffer {
 	void readBoxHeader(OUT BoxHeader &headerObj);
 	void readFullBoxHeader(OUT FullBoxHeader &headerObj);
 	void readPartialFullBoxHeader(OUT FullBoxHeader &headerObj);
+	bool verifyBoxType(std::string boxName);
 	size_t size() const { 
 		return fileSize; 
 	}

@@ -2,6 +2,18 @@
 #include <iostream>
 #include "Box.h"
 
+static inline std::string convertBoxNameToString(byte *name)
+{
+	char tmpName[5];
+	tmpName[0] = name[0];
+	tmpName[1] = name[1];
+	tmpName[2] = name[2];
+	tmpName[3] = name[3];
+	tmpName[4] = '\0';
+	std::string nameStr(tmpName);
+	return nameStr;
+}
+
 BoxHeader::BoxHeader() {
 	this->name[0] = 'i';
 	this->name[1] = 'n';
@@ -37,6 +49,11 @@ void BoxHeader::setBoxHeader(uint32_t size, byte *name, size_t offset)
 	this->name[3] = name[3];
 }
 
+std::string BoxHeader::getName()
+{
+	return convertBoxNameToString(name);
+}
+
 BoxHeader::~BoxHeader() {
 	// TODO Auto-generated destructor stub
 }
@@ -62,17 +79,6 @@ void FullBoxHeader::setFullBoxHeader(byte *version, byte *boxFlags) {
 	this->boxFlags[2] = boxFlags[2];
 }
 
-static inline std::string convertBoxNameToString(byte *name)
-{
-	char tmpName[5];
-	tmpName[0] = name[0];
-	tmpName[1] = name[1];
-	tmpName[2] = name[2];
-	tmpName[3] = name[3];
-	tmpName[4] = '\0';
-	std::string nameStr(tmpName);
-	return nameStr;
-}
 
 int BoxHeader::isContainer() {
 	auto it = boxMap.find(convertBoxNameToString(name));
