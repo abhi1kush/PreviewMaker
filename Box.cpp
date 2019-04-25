@@ -49,6 +49,16 @@ void BoxHeader::setBoxHeader(uint32_t size, byte *name, size_t offset)
 	this->name[3] = name[3];
 }
 
+void BoxHeader::setBoxHeader(BoxHeader headerObj)
+{
+	this->offset = headerObj.getOffset();
+	this->size = headerObj.getSize();
+	this->name[0] = headerObj.getNameChar(0);
+	this->name[1] = headerObj.getNameChar(1);
+	this->name[2] = headerObj.getNameChar(2);
+	this->name[3] = headerObj.getNameChar(3);
+}
+
 std::string BoxHeader::getName()
 {
 	return convertBoxNameToString(name);

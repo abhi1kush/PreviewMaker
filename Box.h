@@ -4,6 +4,7 @@
 #include <string>
 #include <unordered_map>
 #include "common.h"
+#include "mp4_err.h"
 
 #define SIMPLE_BOX 0
 #define CONTAINER_BOX 0x1
@@ -117,6 +118,7 @@ class BoxHeader {
 
 	//methods
 	void setBoxHeader(uint32_t size, byte *name, size_t offset);
+	void setBoxHeader(BoxHeader);
 	void printHeader();
 	virtual void print();
 	int isContainer();
@@ -128,6 +130,10 @@ class BoxHeader {
 	}
 	size_t getOffset() {
 		return offset;
+	}
+	byte getNameChar(uint8_t i) {
+		MP4_ASSERT((i >=0 && i <= 3), "getNameChar out of index", return 0);
+		return name[i];
 	}
 
 	static void printSpace();
