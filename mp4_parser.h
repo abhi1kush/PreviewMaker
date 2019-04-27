@@ -1,3 +1,4 @@
+#include <stack>
 #include "Box.h"
 #include "byte_buffer.h"
 
@@ -11,30 +12,17 @@ class Node
 	uint8_t boxFrequency;
 	int nodeLevel;
 	static int level;
-	public:
 	static uint32_t nodeCount;
-	Node()
-	{
-		nodeLevel = level;
-		parent = NULL;
-		child_box_list = NULL;
-		next = NULL;
-		nodeCount++;
-	}
-	Node(uint64_t offset) 
-	{
-		Node();
-		this->offset = offset;
-	}
-	~Node()
-	{
-		nodeCount--;
-	}
+	public:
+	Node();
+	Node(uint64_t offset);
+	~Node();
 	BoxHeader header;
+	void print();
 	void setOffset(uint64_t offset);
 	uint64_t getOffset();
-	bool isContainer;
-	bool isFullBox;
+	bool isContainer();
+	bool isFullBox();
 	void addParent(Node *parentNode);
 	void addNextNode(Node *nextNode);
 	void addChildNode(Node * childNode);
@@ -48,19 +36,21 @@ class Node
 	static int getLevel();
 	static void levelUp();
 	static void levelDown();
+	static uint32_t getNodeCount();
+
 };
 
 class MP4 {
 	private:
+	void printHelper(Node* currNode);
+	std::stack <Node *> levelStack;
 	public:
 	Node *lastAddedNode;
 	Node *ftyp; //First mandatory box, will be used as root.
-	Node *currNode;
         Node* saerchBox(std::string boxName);
 	MP4()
 	{
 		ftyp = NULL; 
-		currNode = NULL;
 		lastAddedNode = NULL;
 	}
 	Node* createNode(uint64_t offset);	
@@ -69,6 +59,8 @@ class MP4 {
 	Node* getLastAddedNode();
 	int getLastAddedNodeLevel();
 	int addNode(BoxHeader headerObj, uint64_t offset, int nodeLevel);
+	void print();
+	static void printSpace(int spaceCount);
 };
 
 class Mp4Parser {
@@ -83,4 +75,5 @@ class Mp4Parser {
 
 	void parseMp4();
 	void parseContainerBox(BoxHeader &headerObjArg);
+	void print();
 };

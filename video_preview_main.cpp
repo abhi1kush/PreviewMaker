@@ -31,11 +31,9 @@ int main(int argc, char *argv[])
 	uint8_t *fptr = NULL;
 	struct stat sbuf;
 
- 	VID_LOG(0, VID_ERROR, "Test %d %u.", 1, 100);	
-
-	MP4_ASSERT(2 == argc, "Usage: <filename>\n", return -1);
+	MP4_ASSERT(2 == argc, return -1, "Usage: <filename>\n");
 	fd = open(argv[1], O_RDONLY);
-	MP4_ASSERT(fd >= 0, "open() for file failed\n", return -1);
+	MP4_ASSERT(fd >= 0, return -1, "open() for file failed\n");
 	
 	if (stat(argv[1], &sbuf) == -1) {
 		perror("stat");
@@ -51,6 +49,7 @@ int main(int argc, char *argv[])
 	Mp4Parser parser = Mp4Parser(fileBuffer);	
 	/*ready to use mmaped file.*/
 	parser.parseMp4();
+	parser.print();
 
 	return 0;
 }

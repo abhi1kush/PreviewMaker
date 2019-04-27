@@ -132,7 +132,7 @@ class BoxHeader {
 		return offset;
 	}
 	byte getNameChar(uint8_t i) {
-		MP4_ASSERT((i >=0 && i <= 3), "getNameChar out of index", return 0);
+		MP4_ASSERT((i >=0 && i <= 3), return 0, "getNameChar out of index");
 		return name[i];
 	}
 

@@ -93,7 +93,7 @@ void CO64::print()
 
 err_t STBL::parseStbl()
 {
-	MP4_ASSERT((stblBuffer.getPosition() == offset), "(stblBuffer.getPosition() == offset)", return MP4_PARSE_FAILED);
+	MP4_ASSERT((stblBuffer.getPosition() == offset), return MP4_PARSE_FAILED, "(stblBuffer.getPosition() == offset)");
 	while (stblBuffer.getPosition() <= (offset + size)) {
 		
 	}
@@ -107,7 +107,7 @@ err_t STBL::populateSubBoxOffset()
 err_t STBL::populateStbl()
 {
 	err_t ret;
-	MP4_ASSERT(stblBuffer.verifyBoxType("stbl"), "stbl verifyBoxType failed", return MP4_PARSE_FAILED);
+	MP4_ASSERT(stblBuffer.verifyBoxType("stbl"), return MP4_PARSE_FAILED, "stbl verifyBoxType failed");
 	ret = populateSubBoxOffset();
 	if ((stssOffset == INVALID_OFFSET) 
 		|| (stscOffset == INVALID_OFFSET) 
