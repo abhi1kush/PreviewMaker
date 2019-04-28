@@ -28,7 +28,6 @@ class BoxInfo {
 	{
 		return flag & FULLBOX ? true : false;
 	}
-
 };
 
 static const std::unordered_map<std::string, BoxInfo> boxMap = {
@@ -155,5 +154,45 @@ class FullBoxHeader : public BoxHeader{
 	void printFull();
 	//virtual void print();
 };
+
+class TKHD {
+	uint32_t reserved[2];
+	int16_t layer;
+        int16_t alternate_group;
+	int16_t volume;
+	uint16_t reserved2;
+	int32_t matrix[9];
+	uint32_t width;
+	uint32_t height;
+};
+
+class TKHD32 : TKHD{
+	public:
+	FullBoxHeader header;
+	uint32_t creation_time;
+	uint32_t modification_time;
+	uint32_t track_ID;
+	uint32_t reserved1;
+	uint32_t duration;
+};
+
+class TKHD64 : TKHD{
+	public:
+	FullBoxHeader header;
+	uint64_t creation_time;
+	uint64_t modification_time;
+	uint32_t track_ID;
+	uint32_t reserved1;
+	uint64_t duration;
+};
+
+class HDLR {
+	FullBoxHeader header;
+	uint32_t pre_defined;
+	byte handler_type[4];
+	uint32_t reserved[3];
+	byte name;	
+};
+
 
 #endif /* BOX_H_ */
