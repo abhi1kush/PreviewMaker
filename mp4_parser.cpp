@@ -3,6 +3,8 @@
 #include "Box.h"
 #include "mp4_parser.h"
 
+#define BOTTUM_MARKER NULL
+
 int Node::level;
 uint32_t Node::nodeCount;
 
@@ -129,7 +131,6 @@ Node* MP4::createNode(uint64_t offset)
 	return newNode;
 }
 
-
 bool MP4::isFirstNode()
 {
 	return NULL == lastAddedNode;
@@ -169,8 +170,6 @@ int MP4::addNode(BoxHeader headerObj, uint64_t offset, int nodeLevel)
 			return MP4_ERR_OK;
 		}
 		//VID_LOG("parser", VID_INFO, "lastLevel %u curLevel %u\n",getLastAddedNodeLevel(), newNode->getNodeLevel());
-		//MP4_ASSERT((getLastAddedNodeLevel() == newNode->getNodeLevel()) 
-		//		|| (getLastAddedNodeLevel() + 1 ==  newNode->getNodeLevel()), return -1, "Unsynched level lastLevel: %u curr: %u", getLastAddedNodeLevel(), newNode->getNodeLevel());
 		if (getLastAddedNodeLevel() == newNode->getNodeLevel())
 		{
 			//VID_LOG("parser", VID_INFO, "added next node\n");
@@ -202,6 +201,48 @@ void MP4::printHelper(Node* currNode)
 	if (currNode->hasNextNode()) {
 		printHelper(currNode->nextNode());
 	}
+}
+
+Node* MP4::getNext()
+{
+	Node* ret;
+	if (NULL == ftyp) {
+		return NULL;
+	}
+
+	if (iteratorStack.empty()) {
+		iteratorStack.push(BOTTUM_MARKER);
+		iteratorStack.push(ftyp);
+	}
+
+	ret = iteratorStack.top();
+	iteratorStack.pop();
+
+	if (BOTTUM_MARKER == ret) {
+		MP4_ASSERT(iteratorStack.empty(), return NULL, "iteratorStack suppose to be empty.");
+		return NULL;
+	}
+	
+	MP4_ASSERT(NULL != ret, return NULL, "iteratorStack suppose to be empty.");
+	
+	if (ret->hasNextNode()) {
+		iteratorStack.push(ret->nextNode());
+	}
+
+	if (ret->hasChildNode()) {
+		iteratorStack.push(ret->childNode());
+	}
+
+	return ret;
+}
+
+bool MP4::hasNext()
+{
+	if (NULL == ftyp) {
+		return NULL;
+	}
+
+	return !iteratorStack.empty();
 }
 
 void MP4::printSpace(int spaceCount) {

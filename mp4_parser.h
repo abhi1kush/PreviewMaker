@@ -42,6 +42,7 @@ class Node
 
 class MP4 {
 	private:
+	std::stack <Node *> iteratorStack;
 	void printHelper(Node* currNode);
 	std::stack <Node *> levelStack;
 	public:
@@ -53,13 +54,15 @@ class MP4 {
 		ftyp = NULL; 
 		lastAddedNode = NULL;
 	}
-	Node* createNode(uint64_t offset);	
+	Node* createNode(uint64_t offset);
+	bool hasNext();	
 	bool isFirstNode();
 	void setLastAddedNode(Node *node);
 	Node* getLastAddedNode();
 	int getLastAddedNodeLevel();
 	int addNode(BoxHeader headerObj, uint64_t offset, int nodeLevel);
 	void print();
+	Node* getNext();
 	static void printSpace(int spaceCount);
 };
 
