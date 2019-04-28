@@ -2,7 +2,7 @@
 #include <iostream>
 #include "Box.h"
 
-static inline std::string convertBoxNameToString(byte *name)
+std::string convertBoxNameToString(byte *name)
 {
 	char tmpName[5];
 	tmpName[0] = name[0];
@@ -31,7 +31,8 @@ BoxHeader::BoxHeader(uint32_t size, byte *name) {
 
 void BoxHeader::printHeader() {
 	printSpace();
-	fwrite((char *)name, sizeof(byte), 4, stdout);	
+	printf("%lu ", offset);	
+	fwrite((char *)name, sizeof(byte), 4, stdout);
 	printf(" %u\n", size);
 }
 

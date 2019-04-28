@@ -37,6 +37,7 @@ class ByteBuffer {
 	void readBoxHeader(OUT BoxHeader &headerObj);
 	void readFullBoxHeader(OUT FullBoxHeader &headerObj);
 	void readPartialFullBoxHeader(OUT FullBoxHeader &headerObj);
+	void ASCIIDump(size_t start, size_t end);
 	bool verifyBoxType(std::string boxName);
 	size_t size() const { 
 		return fileSize; 

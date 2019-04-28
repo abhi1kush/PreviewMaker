@@ -50,6 +50,7 @@ int main(int argc, char *argv[])
 	/*ready to use mmaped file.*/
 	parser.parseMp4();
 	parser.print();
+	VID_LOG("test", VID_INFO, "vide trak offset %lu\n", parser.searchVideTrak());
 
 	return 0;
 }

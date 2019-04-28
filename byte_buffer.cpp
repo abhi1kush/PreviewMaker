@@ -190,11 +190,28 @@ bool ByteBuffer::verifyBoxType(std::string boxName)
 	size_t backupPosition = getPosition();
 	readBoxHeader(headerObj);
 	setPosition(backupPosition);
+	std::cout<<"verifyBoxType: "<<headerObj.getName()<<std::endl;
 	if (headerObj.getName() == boxName) {
 		return true;
 	} 
 	return false;
 }
 
+void ByteBuffer::ASCIIDump(size_t start, size_t end) 
+{
+	byte readBuff[4];
+	size_t posBackup = getPosition();
+	int i = 0;
+	printf("ASCII DUMP:\n");
+	while (getPosition() <= end) {
+		read(readBuff, 4);
+		printf("%x%x %x%x   [%c-%c-%c-%c] ", readBuff[0], readBuff[1], readBuff[2], readBuff[3],  readBuff[0], readBuff[1], readBuff[2], readBuff[3]);
+		if (i % 4 == 0) {
+			printf("\n");
+		}
+		i++;
+	}
+	printf("\n");
+	setPosition(posBackup);
 
-
+}

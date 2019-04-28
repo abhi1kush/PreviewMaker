@@ -1,6 +1,10 @@
 #include <stack>
+#include <vector>
+#include <string>
 #include "Box.h"
 #include "byte_buffer.h"
+
+#define INVALID_TRAK_OFFSET 1
 
 class Node
 {
@@ -37,7 +41,6 @@ class Node
 	static void levelUp();
 	static void levelDown();
 	static uint32_t getNodeCount();
-
 };
 
 class MP4 {
@@ -54,29 +57,32 @@ class MP4 {
 		ftyp = NULL; 
 		lastAddedNode = NULL;
 	}
+	bool isPopulated();
 	Node* createNode(uint64_t offset);
 	bool hasNext();	
+	Node* getNext();
 	bool isFirstNode();
 	void setLastAddedNode(Node *node);
 	Node* getLastAddedNode();
 	int getLastAddedNodeLevel();
 	int addNode(BoxHeader headerObj, uint64_t offset, int nodeLevel);
 	void print();
-	Node* getNext();
+	err_t searchBox(std::string boxName, OUT std::vector<Node *> &boxes);
+	uint64_t hdlrOffset(Node* trakNode);
+	uint64_t trakOffset(Node* hdlrNode);
 	static void printSpace(int spaceCount);
 };
 
-class Mp4Parser {
+class Mp4Parser : public MP4{
 	ByteBuffer fileByteBuffer;
-	MP4 mp4Obj;
 
 	public:
 	Mp4Parser(ByteBuffer &fileBufferArg) : fileByteBuffer(fileBufferArg)
 	{
-		mp4Obj = MP4();
 	}
 
 	void parseMp4();
 	void parseContainerBox(BoxHeader &headerObjArg);
-	void print();
+	std::string hdlrType(uint64_t hdlrOffset);
+	uint64_t searchVideTrak(); 
 };

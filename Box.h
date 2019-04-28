@@ -10,6 +10,10 @@
 #define CONTAINER_BOX 0x1
 #define FULLBOX 0x2
 
+#define INVALID_BOX_NAME "invl"
+
+std::string convertBoxNameToString(byte *name);
+
 class BoxInfo {
 	std::string name;
 	uint8_t flag;
@@ -186,7 +190,43 @@ class TKHD64 : TKHD{
 	uint64_t duration;
 };
 
+typedef struct _lang_decode
+{
+	uint8_t bit:1;
+	uint8_t lang1:5;
+	uint8_t lang2:5;
+	uint8_t lang3:5;
+}lang_decode_t;
+
+typedef union _mdhd_lang_decode
+{
+	byte language[2];
+	lang_decode_t st_lang;
+}mdhd_lang_decode_t;
+
+class MDHD_COMMON {
+	public:
+	//bit(1) pad = 0;
+	byte language[2]; //uint5_t langauge[3] 
+	uint16_t pre_defined;
+};
+
+class MDHD64 : public MDHD_COMMON {
+	uint64_t creation_time;
+	uint64_t modification_time;
+	uint32_t timescale;
+	uint64_t duration;
+};
+
+class MDHD32 : public MDHD_COMMON {
+	uint32_t creation_time;
+	uint32_t modification_time;
+	uint32_t timescale;
+	uint32_t duration;
+};
+
 class HDLR {
+	public:
 	FullBoxHeader header;
 	uint32_t pre_defined;
 	byte handler_type[4];

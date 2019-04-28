@@ -1,5 +1,6 @@
 #include <cstdio>
 #include <stack>
+#include <iostream>
 #include "Box.h"
 #include "mp4_parser.h"
 
@@ -239,10 +240,17 @@ Node* MP4::getNext()
 bool MP4::hasNext()
 {
 	if (NULL == ftyp) {
-		return NULL;
+		return false;
 	}
 
-	return !iteratorStack.empty();
+	if (iteratorStack.empty()) {
+		return true; //first node.
+	} 
+	else if (BOTTUM_MARKER == iteratorStack.top()) { 
+		return false;
+	} else {
+		return true;
+	}
 }
 
 void MP4::printSpace(int spaceCount) {
@@ -251,15 +259,82 @@ void MP4::printSpace(int spaceCount) {
 	}
 }
 
+err_t MP4::searchBox(std::string boxName, OUT std::vector<Node *> &boxesVec)
+{
+	while (this->hasNext()) {
+		Node* itr = this->getNext();
+		itr->header.print();
+		if (boxName == itr->header.getName()) {
+			boxesVec.push_back(itr);	
+		}
+	}
+	return MP4_ERR_OK;
+}
+
+bool MP4::isPopulated()
+{
+	return NULL != ftyp;
+}
+
+uint64_t MP4::trakOffset(Node *hdlrNode) 
+{
+	Node* itr = hdlrNode;
+	itr = itr->parentNode(); //mdhd or meta
+	if ("meta" == itr->header.getName()) {
+		return INVALID_TRAK_OFFSET;
+	}
+	itr = itr->parentNode(); //mdia
+	itr = itr->parentNode(); //unknown some optional boxes are in the way.
+	while (NULL != itr && "trak" != itr->header.getName()) {
+		itr = itr->parentNode();
+	}
+	
+	MP4_ASSERT(NULL != itr, return INVALID_TRAK_OFFSET, "failed to map from hdlr to trak.");
+	return itr->header.getOffset();
+}
+
+std::string Mp4Parser::hdlrType(uint64_t offset) 
+{
+	HDLR hdlrObj;
+	size_t posBackup = fileByteBuffer.getPosition();
+	fileByteBuffer.setPosition(offset);
+	fileByteBuffer.ASCIIDump(offset - 10, offset + 10);
+	MP4_ASSERT(fileByteBuffer.verifyBoxType("hdlr"), return INVALID_BOX_NAME, "wrong hdlr offset %lu\n", offset);
+	fileByteBuffer.readFullBoxHeader(hdlrObj.header);
+	hdlrObj.pre_defined = fileByteBuffer.readUint32();
+	fileByteBuffer.read(hdlrObj.handler_type, 4);
+
+	//reset to markup pos.
+	fileByteBuffer.setPosition(posBackup);
+	return convertBoxNameToString(hdlrObj.handler_type); 
+}
+
+uint64_t Mp4Parser::searchVideTrak()
+{
+	if (!isPopulated()) {
+		VID_LOG("parser", VID_WARN, "mp4 is not populated yet.\n");
+		return INVALID_TRAK_OFFSET;
+	}
+	
+	std::vector<Node *> hdlrBoxes;
+	searchBox("hdlr", hdlrBoxes);
+
+	MP4_ASSERT(0 < hdlrBoxes.size(), return INVALID_TRAK_OFFSET, "empty hdlrBoxes Vector !!!\n");
+	
+	for (Node* hdlrItr : hdlrBoxes) {
+		std::cout<<"-----"<<hdlrType(hdlrItr->header.getOffset())<<"----"<<std::endl;
+		if ("vide" == hdlrType(hdlrItr->header.getOffset())) {
+			return trakOffset(hdlrItr);	
+		}
+	}
+	VID_LOG("parser", VID_INFO, "could not find trak.\n");
+	return INVALID_TRAK_OFFSET;
+}
+
 void MP4::print()
 {
 	printf("Node Count: %u\n", Node::getNodeCount());
 	printHelper(ftyp);
-}
-
-void Mp4Parser::print()
-{
-	mp4Obj.print();
 }
 
 void Mp4Parser::parseContainerBox(BoxHeader &headerObjArg)
@@ -278,7 +353,7 @@ void Mp4Parser::parseContainerBox(BoxHeader &headerObjArg)
 			break;
 		}
 		
-		mp4Obj.addNode(headerObj, posBackup, Node::getLevel());
+		addNode(headerObj, posBackup, Node::getLevel());
 		
 		if (1 == headerObj.isFullBox()) {
 			fileByteBuffer.readPartialFullBoxHeader(fullHeaderObj);
@@ -312,7 +387,7 @@ void Mp4Parser::parseMp4()
 			break;
 		}
 		
-		mp4Obj.addNode(headerObj, posBackup, Node::getLevel());
+		addNode(headerObj, posBackup, Node::getLevel());
 		
 		if (1 == headerObj.isFullBox()) {
 			fileByteBuffer.readPartialFullBoxHeader(fullHeaderObj);
