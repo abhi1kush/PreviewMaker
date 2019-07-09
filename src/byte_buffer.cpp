@@ -2,6 +2,7 @@
 #include <iostream>
 #include <cstring>
 #include <string>
+#include "mp4_err.h"
 
 #define READ_LIMIT 500
 
@@ -188,6 +189,7 @@ bool ByteBuffer::verifyBoxType(std::string boxName)
 {
 	BoxHeader headerObj = BoxHeader();
 	size_t backupPosition = getPosition();
+        PRINT_MSG("backupPosition %lu\n", backupPosition);	
 	readBoxHeader(headerObj);
 	setPosition(backupPosition);
 	std::cout<<"verifyBoxType: "<<headerObj.getName()<<std::endl;
@@ -201,17 +203,22 @@ void ByteBuffer::ASCIIDump(size_t start, size_t end)
 {
 	byte readBuff[4];
 	size_t posBackup = getPosition();
-	int i = 0;
+	int i = 1;
+	size_t lastPos = 0;
 	printf("ASCII DUMP:\n");
-	while (getPosition() <= end) {
+	while (getPosition() + 4 <= end) {
+		MP4_ASSERT(getPosition() != lastPos, return, "Position is not increasing Infinte Loop !!!!\n");
+		lastPos = getPosition();
 		read(readBuff, 4);
-		printf("%x%x %x%x   [%c-%c-%c-%c] ", readBuff[0], readBuff[1], readBuff[2], readBuff[3],  readBuff[0], readBuff[1], readBuff[2], readBuff[3]);
+		PRINT_MSG("%x%x %x%x ", readBuff[0], readBuff[1], readBuff[2], readBuff[3]);
+		//PRINT_MSG("[%c-%c-%c-%c]", readBuff[0], readBuff[1], readBuff[2], readBuff[3]);
 		if (i % 4 == 0) {
 			printf("\n");
 		}
 		i++;
 	}
 	printf("\n");
+	printf("#!!!!!\n");
 	setPosition(posBackup);
 
 }

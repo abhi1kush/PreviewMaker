@@ -12,8 +12,9 @@ class ByteOrder {
 };
 
 class ByteBuffer {
-	byte *base;
-	byte *fptr;
+	//Read Only pointers to memmory mapped file.
+	const byte *base;
+	const byte *fptr; 
 	const size_t fileSize;
 	size_t currPos;
 

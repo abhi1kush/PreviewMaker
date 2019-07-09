@@ -29,12 +29,12 @@ Node::~Node()
 
 bool Node::isContainer() 
 {
-	return 1 == header.isContainer();
+	return TRUE == header.isContainer();
 }
 
 bool Node::isFullBox()
 {
-	return 1 == header.isFullBox();
+	return TRUE == header.isFullBox();
 }
 
 void Node::addParent(Node *parentNode) 
@@ -152,7 +152,7 @@ int MP4::getLastAddedNodeLevel()
 	if (NULL == ftyp) {
 		return Node::getLevel();
 	}
-	MP4_ASSERT((NULL != lastAddedNode), return -1, "lastAddedNode is null");
+	MP4_ASSERT((NULL != lastAddedNode), return ERROR, "lastAddedNode is null");
 	if (NULL != lastAddedNode) {
 		return lastAddedNode->getNodeLevel();
 	}
@@ -161,7 +161,7 @@ int MP4::getLastAddedNodeLevel()
 int MP4::addNode(BoxHeader headerObj, uint64_t offset, int nodeLevel)
 {
 		Node *newNode = createNode(offset);
-		MP4_ASSERT((NULL != newNode), return -1, "addNode: newNode is null"); 
+		MP4_ASSERT((NULL != newNode), return ERROR, "addNode: newNode is null"); 
 		newNode->header.setBoxHeader(headerObj);
 		//TODO: remove this if cond 
 		//and adjust (getLastAddedNodeLevel() + 1 ==  newNode->getNodeLevel()) 
@@ -176,7 +176,7 @@ int MP4::addNode(BoxHeader headerObj, uint64_t offset, int nodeLevel)
 			//VID_LOG("parser", VID_INFO, "added next node\n");
 			lastAddedNode->addNextNode(newNode);
 		}
-		else if (getLastAddedNodeLevel() + 1 ==  newNode->getNodeLevel()) {
+		else if ((getLastAddedNodeLevel() + 1) ==  newNode->getNodeLevel()) {
 			//VID_LOG("parser", VID_INFO, "added child node\n");
 			levelStack.push(lastAddedNode);
 			lastAddedNode->addChildNode(newNode);
@@ -296,17 +296,24 @@ uint64_t MP4::trakOffset(Node *hdlrNode)
 std::string Mp4Parser::hdlrType(uint64_t offset) 
 {
 	HDLR hdlrObj;
+	BoxHeader header;
 	size_t posBackup = fileByteBuffer.getPosition();
 	fileByteBuffer.setPosition(offset);
-	fileByteBuffer.ASCIIDump(offset - 10, offset + 10);
-	MP4_ASSERT(fileByteBuffer.verifyBoxType("hdlr"), return INVALID_BOX_NAME, "wrong hdlr offset %lu\n", offset);
+	fileByteBuffer.readBoxHeader(header);
+	fileByteBuffer.ASCIIDump(offset, offset + 95);
+	printf("+--+");
+	header.printHeader();
+	//MP4_ASSERT(fileByteBuffer.verifyBoxType("hdlr"), return INVALID_BOX_NAME, "wrong hdlr offset %lu %lu\n", offset, fileByteBuffer.getPosition());
+	fileByteBuffer.ASCIIDump(offset, offset + 95);
 	fileByteBuffer.readFullBoxHeader(hdlrObj.header);
 	hdlrObj.pre_defined = fileByteBuffer.readUint32();
 	fileByteBuffer.read(hdlrObj.handler_type, 4);
 
 	//reset to markup pos.
 	fileByteBuffer.setPosition(posBackup);
-	return convertBoxNameToString(hdlrObj.handler_type); 
+	std::string retStr = convertBoxNameToString(hdlrObj.handler_type);
+        VID_LOG("hdlrType", VID_INFO,"hdlr type : %s\n", hdlrObj.handler_type);
+	return retStr;	
 }
 
 uint64_t Mp4Parser::searchVideTrak()
@@ -318,11 +325,11 @@ uint64_t Mp4Parser::searchVideTrak()
 	
 	std::vector<Node *> hdlrBoxes;
 	searchBox("hdlr", hdlrBoxes);
-
+	
 	MP4_ASSERT(0 < hdlrBoxes.size(), return INVALID_TRAK_OFFSET, "empty hdlrBoxes Vector !!!\n");
 	
 	for (Node* hdlrItr : hdlrBoxes) {
-		std::cout<<"-----"<<hdlrType(hdlrItr->header.getOffset())<<"----"<<std::endl;
+		hdlrItr->print();
 		if ("vide" == hdlrType(hdlrItr->header.getOffset())) {
 			return trakOffset(hdlrItr);	
 		}
@@ -381,7 +388,7 @@ void Mp4Parser::parseMp4()
 		size_t posBackup = fileByteBuffer.getPosition();
 		fileByteBuffer.readBoxHeader(headerObj);
 		headerObj.printHeader();
-		if (1 != headerObj.isValidBox()) {
+		if (TRUE != headerObj.isValidBox()) {
 			printf("Invalid Box : ");
 			headerObj.printHeader();
 			break;
@@ -389,10 +396,10 @@ void Mp4Parser::parseMp4()
 		
 		addNode(headerObj, posBackup, Node::getLevel());
 		
-		if (1 == headerObj.isFullBox()) {
+		if (TRUE == headerObj.isFullBox()) {
 			fileByteBuffer.readPartialFullBoxHeader(fullHeaderObj);
 		}
-		if (1 == headerObj.isContainer()) {
+		if (TRUE == headerObj.isContainer()) {
 			parseContainerBox(headerObj);
 		} else {
 			size_t haveRead = fileByteBuffer.getPosition() - posBackup;

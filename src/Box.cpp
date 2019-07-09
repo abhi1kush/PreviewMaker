@@ -94,25 +94,25 @@ void FullBoxHeader::setFullBoxHeader(byte *version, byte *boxFlags) {
 int BoxHeader::isContainer() {
 	auto it = boxMap.find(convertBoxNameToString(name));
 	if (it != boxMap.end()) {
-		return it->second.isContainer() ? 1 : 0;
+		return it->second.isContainer() ? TRUE : FALSE;
 	}
-	return -1;
+	return ERROR;
 }
 
 int BoxHeader::isFullBox() {
 	auto it = boxMap.find(convertBoxNameToString(name));
 	if (it != boxMap.end()) {
-		return (it->second.isFullBox()) ? 1 : 0;
+		return (it->second.isFullBox()) ? TRUE : FALSE;
 	}
-	return -1;
+	return ERROR;
 }
 
 int BoxHeader::isValidBox() {
 	std::string nameStr = convertBoxNameToString(name);
 	if (boxMap.find(nameStr) != boxMap.end()) {
-		return 1;
+		return TRUE;
 	}
-	return -1;
+	return ERROR;
 }
 
 uint8_t BoxHeader::spaceCount = 0;

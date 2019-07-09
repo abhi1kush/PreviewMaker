@@ -12,6 +12,10 @@
 
 #define INVALID_BOX_NAME "invl"
 
+#define TRUE 1
+#define FALSE 0
+#define ERROR -1
+
 std::string convertBoxNameToString(byte *name);
 
 class BoxInfo {
